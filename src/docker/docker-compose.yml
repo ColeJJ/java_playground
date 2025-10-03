@@ -1,0 +1,13 @@
+name: java_playground
+
+services:
+  db:
+    container_name: postgres_db
+    image: postgres:13
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: p123
+      POSTGRES_DB: my_db
