@@ -20,6 +20,16 @@ public class JdbcTest {
         doInJDBC(() -> {
             con = DriverManager.getConnection("jdbc:p6spy:postgresql://localhost:5432/my_db", "admin", "p123");
             con.setAutoCommit(false);
+
+            final int isolationLevel = con.getTransactionIsolation();
+
+            System.out.printf("""
+                
+                ''''''''''''''''''''''''''''''''''''''''''''''
+                Isolation Level = %s (%d).
+                ''''''''''''''''''''''''''''''''''''''''''''''%n""", getIsolationLevelAsString(isolationLevel), isolationLevel);
+
+            System.out.println("SQL LOGGING:\n");
         });
     }
 
@@ -32,7 +42,8 @@ public class JdbcTest {
                     
                     ''''''''''''''''''''''''''''''''''''''''''''''
                     Connection has been successfully closed.
-                    ''''''''''''''''''''''''''''''''''''''''''''''""");
+                    ''''''''''''''''''''''''''''''''''''''''''''''
+                    """);
             }
         } catch (Exception e) {
             rollback();
@@ -126,6 +137,17 @@ public class JdbcTest {
             e.printStackTrace();
             System.out.println("Failed to rollback the transation: " + e.getMessage());
         }
+    }
+
+    private String getIsolationLevelAsString(final int level) {
+        return switch (level) {
+            case Connection.TRANSACTION_NONE -> "NONE";
+            case Connection.TRANSACTION_READ_UNCOMMITTED -> "READ UNCOMMITED";
+            case Connection.TRANSACTION_READ_COMMITTED -> "READ COMMITED";
+            case Connection.TRANSACTION_REPEATABLE_READ -> "REPEATABLE READ";
+            case Connection.TRANSACTION_SERIALIZABLE -> "SERIALIZABLE";
+            default -> "UNKNOWN";
+        };
     }
 }
 
